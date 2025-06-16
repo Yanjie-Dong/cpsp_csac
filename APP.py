@@ -33,7 +33,6 @@ selected_features = joblib.load("selected_features_app.pkl")  # 25
 
 # In[85]:
 
-
 feature_names = min_max_params["feature_names"]
 selected_indices = [feature_names.index(f) for f in selected_features]
 
@@ -124,7 +123,7 @@ if st.button("Predict"):
 
     # 显示预测结果
     risk_probability = predicted_proba[1]  # 正类的概率
-    st.success(f"Based on this model, the CPSP risk of this patient is {risk_probability * 100:.2f}%")
+    st.success(f"Based on this model, the output probability of CPSP risk is {risk_probability * 100:.2f}%.  A predicted probability ≥12.40% (the optimal threshold determined by Youden's index) is classified as high risk for CPSP.")
 
     # 计算SHAP值并显示力图
     explainer = shap.TreeExplainer(model)
