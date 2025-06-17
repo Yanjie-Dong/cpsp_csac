@@ -74,37 +74,51 @@ binary_features = ["Drainage tube placement", "Open surgery", "Male gender",
                   'Surface or limb surgery',
                   'No thrombus risk']  # 示例：这些特征只能取0或1
 
-for feature in selected_features:
-    if feature in binary_features:
-        # 二元特征，只能取0或1
-        inputs[feature] = st.selectbox(
-            f"{feature}",
-            options=[0, 1],
-            format_func=lambda x: 'No (0)' if x == 0 else 'Yes (1)'
-        )
-    else:
-        # 连续特征，使用手动定义的范围和步长
-        min_val = feature_ranges[feature]["min"]
-        max_val = feature_ranges[feature]["max"]
-        step = feature_ranges[feature]["step"]
-        
-        if max_val is None:
-            # 如果没有设置最大值，允许用户输入任意大的值
-            inputs[feature] = st.number_input(
+st.title("CPSP Prediction")
+
+# 创建4列
+col1, col2, col3, col4 = st.columns(4)
+
+inputs = {}
+current_col = 0  # 用于跟踪当前列
+
+for i, feature in enumerate(selected_features):
+    # 确定当前特征应该放在哪一列
+    current_col = i % 4
+    
+    # 根据列号选择对应的列上下文管理器
+    with [col1, col2, col3, col4][current_col]:
+        if feature in binary_features:
+            # 二元特征，只能取0或1
+            inputs[feature] = st.selectbox(
                 f"{feature}",
-                min_value=min_val,
-                step=step,
-                value=min_val  # 默认值设置为最小值
+                options=[0, 1],
+                format_func=lambda x: 'No (0)' if x == 0 else 'Yes (1)'
             )
         else:
-            # 如果设置了最大值，使用范围限制
-            inputs[feature] = st.number_input(
-                f"{feature}",
-                min_value=min_val,
-                max_value=max_val,
-                step=step,
-                value=min_val  # 默认值设置为最小值
-            )
+            # 连续特征，使用手动定义的范围和步长
+            min_val = feature_ranges[feature]["min"]
+            max_val = feature_ranges[feature]["max"]
+            step = feature_ranges[feature]["step"]
+            
+            if max_val is None:
+                # 如果没有设置最大值，允许用户输入任意大的值
+                inputs[feature] = st.number_input(
+                    f"{feature}",
+                    min_value=min_val,
+                    step=step,
+                    value=min_val  # 默认值设置为最小值
+                )
+            else:
+                # 如果设置了最大值，使用范围限制
+                inputs[feature] = st.number_input(
+                    f"{feature}",
+                    min_value=min_val,
+                    max_value=max_val,
+                    step=step,
+                    value=min_val  # 默认值设置为最小值
+                )
+
 
 
 # In[87]:
