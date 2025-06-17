@@ -56,7 +56,7 @@ st.set_page_config(layout="wide")
 # 
 st.markdown("""
 <style>
-    /* Full-width main containe */
+    /* Full-width main container */
     .main .block-container {
         max-width: 100%;
         padding: 2rem 4rem;
@@ -65,6 +65,23 @@ st.markdown("""
     /* Input control styling */
     div.stNumberInput, div.stSelectbox {
         width: 100% !important;
+    }
+    
+    /* Fix for selectbox display */
+    div[data-baseweb="select"]>div {
+        height: auto !important;
+        min-height: 38px !important;
+    }
+    
+    div[role="listbox"] div {
+        padding: 8px 12px !important;
+    }
+    
+    div[data-baseweb="input"]>div,
+    div[data-baseweb="select"]>div {
+        min-height: 38px;
+        display: flex;
+        align-items: center;
     }
     
     /* Three column layout optimization */
