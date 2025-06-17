@@ -58,7 +58,14 @@ feature_ranges = {
     "Preoperative fibrinogen": {"min": 0.0, "max": None,"step":0.1}
     #连续特征的范围
 }
-
+# 定义哪些特征是二元的
+binary_features = ["Drainage tube placement", "Open surgery", "Male gender",
+                  "Abdominal surgery", 'Operation grading IV',
+                  'PHQ9-Trouble in sleep', 'Junior school and below',
+                  'PSQI-Feel too hot when sleep',
+                  'Middle thrombus risk',
+                  'Surface or limb surgery',
+                  'No thrombus risk']
 
 # In[86]:
 
