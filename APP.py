@@ -63,26 +63,33 @@ feature_ranges = {
 # In[86]:
 
 
-st.title("CPSP Prediction")
-inputs = {}
-# 定义哪些特征是二元的
-binary_features = ["Drainage tube placement", "Open surgery", "Male gender",
-                  "Abdominal surgery", 'Operation grading IV',
-                  'PHQ9-Trouble in sleep','Junior school and below',
-                  'PSQI-Feel too hot when sleep',
-                  'Middle thrombus risk',
-                  'Surface or limb surgery',
-                  'No thrombus risk']  # 示例：这些特征只能取0或1
+# 自定义CSS优化显示
+st.markdown("""
+<style>
+    section.main>div {max-width: 1400px}
+    div.stNumberInput, div.stSelectbox {
+        width: 100%;
+    }
+    div[data-testid="column"] {
+        padding: 0px 10px;
+        min-width: 600px;
+    }
+    label[data-testid="stWidgetLabel"] p {
+        font-size: 14px;
+        line-height: 1.4;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 st.title("CPSP Prediction")
 
-# 创建4列，使用更大的宽度比例
-col1, col2, col3, col4 = st.columns([1.5, 1.5, 1.5, 1.5])
+# 创建2列，使用更大的宽度
+col1, col2 = st.columns(2)
 
 inputs = {}
 for i, feature in enumerate(selected_features):
-    current_col = i % 4
-    with [col1, col2, col3, col4][current_col]:
+    current_col = i % 2
+    with [col1, col2][current_col]:
         # 使用原始特征名称
         display_name = feature
         
@@ -115,7 +122,6 @@ for i, feature in enumerate(selected_features):
                     value=min_val,
                     key=f"num_{feature}"
                 )
-
 
 # In[87]:
 
