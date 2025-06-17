@@ -87,7 +87,7 @@ for i, feature in enumerate(selected_features):
     current_col = i % 4
     
     # 根据列号选择对应的列上下文管理器
-    with [col1, col2, col3, col4][current_col]:
+    with [col1, col2, col3][current_col]:
         if feature in binary_features:
             # 二元特征，只能取0或1
             inputs[feature] = st.selectbox(
