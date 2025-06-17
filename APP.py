@@ -1,19 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[82]:
-
-
 # 工作环境
 import os
 import warnings
-current_directory = os.getcwd()
-warnings.filterwarnings('ignore')
-print("当前工作目录:", current_directory)
-
-
-# In[83]:
-
 import joblib
 import streamlit as st
 import numpy as np
@@ -21,43 +11,36 @@ import shap
 import pandas as pd
 import matplotlib.pyplot as plt
 
+current_directory = os.getcwd()
+warnings.filterwarnings('ignore')
+print("当前工作目录:", current_directory)
 
-# In[84]:
-
-
-# 
+# 加载模型和数据
 model = joblib.load("simple_model.pkl")
 min_max_params = joblib.load("min_max_params_app.pkl")
 selected_features = joblib.load("selected_features_app.pkl")  # 25
 
-
-# In[85]:
-
 feature_names = min_max_params["feature_names"]
 selected_indices = [feature_names.index(f) for f in selected_features]
 
-
-# In[ ]:
-
-
 # 定义每个特征的输入范围
 feature_ranges = {
-    "Subacute pain NRS score at POD30": {"min": 0, "max": 10,"step": 1,},
-    "The 10th percentile of postoperative NRS score": {"min": 0, "max": 10,"step": 1},
-    "Postoperative NRS CWT (coeff=2, width=2, scales=(2/5/10/20))": {"min": 0.0, "max": 1.0,"step":0.1},
-    "Rehabilitation feeling at POD30": {"min": 0, "max": 10,"step": 1},
-    "Surgical month": {"min": 1, "max": 12,"step": 1},
-    "Consumption of intraoperative opioid": {"min": 0.0, "max": None,"step":0.1},
-    "Intraoperative crystalloid": {"min": 0, "max": None,"step": 1},
-    "Treponema pallidum antibody": {"min": 0.0, "max": None,"step":0.1},
-    "Preoperative pain NRS score": {"min": 0, "max": 10,"step": 1},
-    "Hospitalizing expenses": {"min": 0, "max": None,"step": 1},
-    "Preoperative serummagnesium": {"min": 0.0, "max": None,"step": 0.1},
-    "Consumption of intraoperative sevoflurane": {"min": 0.0, "max": None,"step":0.1},
-    "Consumption of intraoperative propofol": {"min": 0.0, "max": None,"step":0.1},
-    "Preoperative fibrinogen": {"min": 0.0, "max": None,"step":0.1}
-    #连续特征的范围
+    "Subacute pain NRS score at POD30": {"min": 0, "max": 10, "step": 1},
+    "The 10th percentile of postoperative NRS score": {"min": 0, "max": 10, "step": 1},
+    "Postoperative NRS CWT (coeff=2, width=2, scales=(2/5/10/20))": {"min": 0.0, "max": 1.0, "step": 0.1},
+    "Rehabilitation feeling at POD30": {"min": 0, "max": 10, "step": 1},
+    "Surgical month": {"min": 1, "max": 12, "step": 1},
+    "Consumption of intraoperative opioid": {"min": 0.0, "max": None, "step": 0.1},
+    "Intraoperative crystalloid": {"min": 0, "max": None, "step": 1},
+    "Treponema pallidum antibody": {"min": 0.0, "max": None, "step": 0.1},
+    "Preoperative pain NRS score": {"min": 0, "max": 10, "step": 1},
+    "Hospitalizing expenses": {"min": 0, "max": None, "step": 1},
+    "Preoperative serummagnesium": {"min": 0.0, "max": None, "step": 0.1},
+    "Consumption of intraoperative sevoflurane": {"min": 0.0, "max": None, "step": 0.1},
+    "Consumption of intraoperative propofol": {"min": 0.0, "max": None, "step": 0.1},
+    "Preoperative fibrinogen": {"min": 0.0, "max": None, "step": 0.1}
 }
+
 # 定义哪些特征是二元的
 binary_features = ["Drainage tube placement", "Open surgery", "Male gender",
                   "Abdominal surgery", 'Operation grading IV',
@@ -67,30 +50,55 @@ binary_features = ["Drainage tube placement", "Open surgery", "Male gender",
                   'Surface or limb surgery',
                   'No thrombus risk']
 
-# In[86]:
+# 设置页面为全宽模式
+st.set_page_config(layout="wide")
 
-
-# 自定义CSS优化显示
+# 自定义CSS进一步优化显示
 st.markdown("""
 <style>
-    section.main>div {max-width: 1400px}
+    /* 主容器全宽 */
+    .main .block-container {
+        max-width: 100%;
+        padding: 2rem 4rem;
+    }
+    
+    /* 输入控件样式 */
     div.stNumberInput, div.stSelectbox {
-        width: 100%;
+        width: 100% !important;
     }
+    
+    /* 列样式 */
     div[data-testid="column"] {
-        padding: 0px 10px;
-        min-width: 600px;
+        padding: 0rem 1rem;
+        min-width: 45%;
     }
+    
+    /* 标签样式 */
     label[data-testid="stWidgetLabel"] p {
         font-size: 14px;
         line-height: 1.4;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* 输入框样式 */
+    div[data-baseweb="input"]>div, 
+    div[data-baseweb="select"]>div {
+        border-radius: 4px;
+        padding: 0.25rem 0.75rem;
+    }
+    
+    /* 按钮样式 */
+    div.stButton>button {
+        width: 100%;
+        margin-top: 2rem;
+        padding: 0.5rem;
     }
 </style>
 """, unsafe_allow_html=True)
 
 st.title("CPSP Prediction")
 
-# 创建2列，使用更大的宽度
+# 创建2列，使用全宽布局
 col1, col2 = st.columns(2)
 
 inputs = {}
@@ -129,31 +137,27 @@ for i, feature in enumerate(selected_features):
                     value=min_val,
                     key=f"num_{feature}"
                 )
-# In[87]:
 
-
-if st.button("Predict"):
-    # (1)
+# 预测按钮（全宽按钮）
+if st.button("Predict", key="predict_button"):
     user_input = np.array([inputs[f] for f in selected_features])
-    min_vals = min_max_params["min"][selected_indices]  # 25min
-    max_vals = min_max_params["max"][selected_indices]  # 25max
+    min_vals = min_max_params["min"][selected_indices]
+    max_vals = min_max_params["max"][selected_indices]
     normalized_input = (user_input - min_vals) / (max_vals - min_vals)
                             
-     # (2) 预测（注意输入是2D数组）
     prediction = model.predict([normalized_input])
     predicted_proba = model.predict_proba([normalized_input])[0]
 
-    # 显示预测结果
-    risk_probability = predicted_proba[1]  # 正类的概率
-    st.success(f"Based on this model, the output probability of CPSP risk is {risk_probability * 100:.2f}%.  A predicted probability ≥12.40% (the optimal threshold determined by Youden's index) is classified as high risk for CPSP.")
+    risk_probability = predicted_proba[1]
+    st.success(f"Based on this model, the output probability of CPSP risk is {risk_probability * 100:.2f}%. A predicted probability ≥12.40% (the optimal threshold determined by Youden's index) is classified as high risk for CPSP.")
 
-    # 计算SHAP值并显示力图
+    # 计算SHAP值
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(pd.DataFrame([normalized_input], columns=selected_features))
 
-    # 显示SHAP力图
-    plt.figure(figsize=(20, 12))  # 调整图像大小
+    # 显示SHAP力图（全宽显示）
+    st.subheader("Feature Impact Analysis")
+    plt.figure(figsize=(20, 6))
     shap.force_plot(explainer.expected_value, shap_values[0], pd.DataFrame([normalized_input], columns=selected_features), matplotlib=True)
-    plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=300)
-    st.image("shap_force_plot.png")
-
+    plt.tight_layout()
+    st.pyplot(plt)
