@@ -122,7 +122,6 @@ for i, feature in enumerate(selected_features):
                     value=min_val,
                     key=f"num_{feature}"
                 )
-
 # In[87]:
 
 
