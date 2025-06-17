@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# 工作环境
+# working environment
 import os
 import warnings
 import joblib
@@ -13,9 +13,9 @@ import matplotlib.pyplot as plt
 
 current_directory = os.getcwd()
 warnings.filterwarnings('ignore')
-print("当前工作目录:", current_directory)
+print("curretn_directory:", current_directory)
 
-# 加载模型和数据
+# load model and data
 model = joblib.load("simple_model.pkl")
 min_max_params = joblib.load("min_max_params_app.pkl")
 selected_features = joblib.load("selected_features_app.pkl")  # 25
@@ -23,7 +23,7 @@ selected_features = joblib.load("selected_features_app.pkl")  # 25
 feature_names = min_max_params["feature_names"]
 selected_indices = [feature_names.index(f) for f in selected_features]
 
-# 定义每个特征的输入范围
+# Define input ranges for each feature
 feature_ranges = {
     "Subacute pain NRS score at POD30": {"min": 0, "max": 10, "step": 1},
     "The 10th percentile of postoperative NRS score": {"min": 0, "max": 10, "step": 1},
@@ -41,7 +41,7 @@ feature_ranges = {
     "Preoperative fibrinogen": {"min": 0.0, "max": None, "step": 0.1}
 }
 
-# 定义哪些特征是二元的
+# Define binary features (yes/no)
 binary_features = ["Drainage tube placement", "Open surgery", "Male gender",
                   "Abdominal surgery", 'Operation grading IV',
                   'PHQ9-Trouble in sleep', 'Junior school and below',
@@ -50,30 +50,30 @@ binary_features = ["Drainage tube placement", "Open surgery", "Male gender",
                   'Surface or limb surgery',
                   'No thrombus risk']
 
-# 设置页面为全宽模式
+# Configure page layout to use full width
 st.set_page_config(layout="wide")
 
-# 自定义CSS优化三列布局
+# 
 st.markdown("""
 <style>
-    /* 主容器全宽 */
+    /* Full-width main containe */
     .main .block-container {
         max-width: 100%;
         padding: 2rem 4rem;
     }
     
-    /* 输入控件样式 */
+    /* Input control styling */
     div.stNumberInput, div.stSelectbox {
         width: 100% !important;
     }
     
-    /* 三列样式优化 */
+    /* Three column layout optimization */
     div[data-testid="column"] {
         padding: 0rem 1rem;
         min-width: 30%;
     }
     
-    /* 标签样式优化 */
+    /* Label styling */
     label[data-testid="stWidgetLabel"] p {
         font-size: 14px;
         line-height: 1.4;
@@ -81,21 +81,21 @@ st.markdown("""
         word-break: break-word;
     }
     
-    /* 输入框样式 */
+    /* Input field styling */
     div[data-baseweb="input"]>div, 
     div[data-baseweb="select"]>div {
         border-radius: 4px;
         padding: 0.25rem 0.75rem;
     }
     
-    /* 按钮样式 */
+    /* Button styling */
     div.stButton>button {
         width: 100%;
         margin-top: 2rem;
         padding: 0.5rem;
     }
     
-    /* 响应式调整 */
+    /* Responsive adjustments */
     @media screen and (max-width: 1200px) {
         div[data-testid="column"] {
             min-width: 45%;
@@ -106,14 +106,14 @@ st.markdown("""
 
 st.title("CPSP Prediction")
 
-# 创建3列，使用全宽布局
+# Create three columns for input layout
 col1, col2, col3 = st.columns(3)
 
 inputs = {}
 for i, feature in enumerate(selected_features):
-    current_col = i % 3  # 改为3列循环
-    with [col1, col2, col3][current_col]:  # 三列上下文
-        # 使用原始特征名称
+    current_col = i % 3  
+    with [col1, col2, col3][current_col]:  
+        # Display original feature name
         display_name = feature
         
         if feature in binary_features:
@@ -146,7 +146,7 @@ for i, feature in enumerate(selected_features):
                     key=f"num_{feature}"
                 )
 
-# 预测按钮（全宽按钮）
+# Prediction button
 if st.button("Predict", key="predict_button"):
     user_input = np.array([inputs[f] for f in selected_features])
     min_vals = min_max_params["min"][selected_indices]
@@ -159,11 +159,11 @@ if st.button("Predict", key="predict_button"):
     risk_probability = predicted_proba[1]
     st.success(f"Based on this model, the output probability of CPSP risk is {risk_probability * 100:.2f}%. A predicted probability ≥12.40% (the optimal threshold determined by Youden's index) is classified as high risk for CPSP.")
 
-    # 计算SHAP值
+    # SHAP
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(pd.DataFrame([normalized_input], columns=selected_features))
 
-    # 显示SHAP力图（全宽显示）
+    # Display SHAP force plot
     st.subheader("Feature Impact Analysis")
     plt.figure(figsize=(20, 6))
     shap.force_plot(explainer.expected_value, shap_values[0], pd.DataFrame([normalized_input], columns=selected_features), matplotlib=True)
