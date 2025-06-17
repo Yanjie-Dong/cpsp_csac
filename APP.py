@@ -53,7 +53,7 @@ binary_features = ["Drainage tube placement", "Open surgery", "Male gender",
 # 设置页面为全宽模式
 st.set_page_config(layout="wide")
 
-# 自定义CSS进一步优化显示
+# 自定义CSS优化三列布局
 st.markdown("""
 <style>
     /* 主容器全宽 */
@@ -67,17 +67,18 @@ st.markdown("""
         width: 100% !important;
     }
     
-    /* 列样式 */
+    /* 三列样式优化 */
     div[data-testid="column"] {
         padding: 0rem 1rem;
-        min-width: 45%;
+        min-width: 30%;
     }
     
-    /* 标签样式 */
+    /* 标签样式优化 */
     label[data-testid="stWidgetLabel"] p {
         font-size: 14px;
         line-height: 1.4;
         margin-bottom: 0.5rem;
+        word-break: break-word;
     }
     
     /* 输入框样式 */
@@ -93,18 +94,25 @@ st.markdown("""
         margin-top: 2rem;
         padding: 0.5rem;
     }
+    
+    /* 响应式调整 */
+    @media screen and (max-width: 1200px) {
+        div[data-testid="column"] {
+            min-width: 45%;
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
 
 st.title("CPSP Prediction")
 
-# 创建2列，使用全宽布局
-col1, col2 = st.columns(2)
+# 创建3列，使用全宽布局
+col1, col2, col3 = st.columns(3)
 
 inputs = {}
 for i, feature in enumerate(selected_features):
-    current_col = i % 2
-    with [col1, col2][current_col]:
+    current_col = i % 3  # 改为3列循环
+    with [col1, col2, col3][current_col]:  # 三列上下文
         # 使用原始特征名称
         display_name = feature
         
