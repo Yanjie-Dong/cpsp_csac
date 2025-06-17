@@ -77,7 +77,7 @@ binary_features = ["Drainage tube placement", "Open surgery", "Male gender",
 st.title("CPSP Prediction")
 
 # 创建4列
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3, col4 = st.columns([1.2, 1.2, 1.2, 1.2])  # 增加每列的宽度比例
 
 inputs = {}
 current_col = 0  # 用于跟踪当前列
