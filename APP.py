@@ -25,30 +25,31 @@ selected_indices = [feature_names.index(f) for f in selected_features]
 
 # Define input ranges for each feature
 feature_ranges = {
-    "Subacute pain NRS score at POD30": {"min": 0, "max": 10, "step": 1},
-    "The 10th percentile of postoperative NRS score": {"min": 0, "max": 10, "step": 1},
-    "Postoperative NRS CWT (coeff=2, width=2, scales=(2/5/10/20))": {"min": 0.0, "max": 1.0, "step": 0.1},
-    "Rehabilitation feeling at POD30": {"min": 0, "max": 10, "step": 1},
-    "Surgical month": {"min": 1, "max": 12, "step": 1},
-    "Consumption of intraoperative opioid": {"min": 0.0, "max": None, "step": 0.1},
-    "Intraoperative crystalloid": {"min": 0, "max": None, "step": 1},
-    "Treponema pallidum antibody": {"min": 0.0, "max": None, "step": 0.1},
-    "Preoperative pain NRS score": {"min": 0, "max": 10, "step": 1},
-    "Hospitalizing expenses": {"min": 0, "max": None, "step": 1},
-    "Preoperative serummagnesium": {"min": 0.0, "max": None, "step": 0.1},
-    "Consumption of intraoperative sevoflurane": {"min": 0.0, "max": None, "step": 0.1},
-    "Consumption of intraoperative propofol": {"min": 0.0, "max": None, "step": 0.1},
-    "Preoperative fibrinogen": {"min": 0.0, "max": None, "step": 0.1}
+    "Subacute pain NRS score at postoperative day 30": {"min": 0, "max": 10,"step": 1,},
+    "The 10th percentile of postoperative NRS score": {"min": 0, "max": 10,"step": 1},
+    "Pain transition from postoperative day 3-30": {"min": 0.0, "max": None,"step":0.1},
+    "Rehabilitation feeling at postoperative day 30": {"min": 0, "max": 10,"step": 1},
+    "Surgical month": {"min": 1, "max": 12,"step": 1},
+    "Energy ratio of subacute pain NRS score at postoperative day 30": {"min": 0.0, "max": None,"step":0.1},
+    "Intraoperative crystalloid": {"min": 0, "max": None,"step": 1},
+    "Treponema pallidum antibody": {"min": 0.0, "max": None,"step":0.1},
+    "Preoperative pain NRS score": {"min": 0, "max": 10,"step": 1},
+    "Hospitalizing expenses": {"min": 0, "max": None,"step": 1},
+    "Postoperative day 30 global pain recovery deviation": {"min": 0.0, "max": None,"step": 0.1},
+    "Dynamic stability of intraoperative ETCO2": {"min": 0.0, "max": None,"step":0.1},
+    "Consumption of intraoperative propofol": {"min": 0.0, "max": None,"step":0.1},
+    "Preoperative fibrinogen": {"min": 0.0, "max": None,"step":0.1},
+    "Preoperative neutrophil":{"min": 0.0, "max": None,"step":0.1}
 }
 
 # Define binary features (yes/no)
 binary_features = ["Drainage tube placement", "Open surgery", "Male gender",
                   "Abdominal surgery", 'Operation grading IV',
-                  'PHQ9-Trouble in sleep', 'Junior school and below',
+                  'PHQ9-Trouble in sleep','Junior school and below',
                   'PSQI-Feel too hot when sleep',
-                  'Middle thrombus risk',
                   'Surface or limb surgery',
-                  'No thrombus risk']
+                  'No thrombus risk'
+]
 
 # Configure page layout to use full width
 st.set_page_config(layout="wide")
@@ -174,7 +175,7 @@ if st.button("Predict", key="predict_button"):
     predicted_proba = model.predict_proba([normalized_input])[0]
 
     risk_probability = predicted_proba[1]
-    st.success(f"Based on this model, the output probability of CPSP risk is {risk_probability * 100:.2f}%. A predicted probability ≥12.40% (the optimal threshold determined by Youden's index) is classified as high risk for CPSP.")
+    st.success(f"Based on this model, the output probability of CPSP risk is {risk_probability * 100:.2f}%. A predicted probability ≥11.60% (the optimal threshold determined by Youden's index) is classified as high risk for CPSP.")
 
     # SHAP
     explainer = shap.TreeExplainer(model)
