@@ -24,21 +24,21 @@ st.set_page_config(
     layout="wide"
 )
 
-# ==================== CSS 美化（沿用毕业论文风格，内容适配英文） ====================
+# ==================== CSS 美化（BJA 蓝色配色） ====================
 st.markdown("""
 <style>
-    /* 主标题样式 */
+    /* 主标题样式 - BJA 深蓝 */
     .main-header {
-        color: #1a237e;
+        color: #003366;
         font-size: 2rem;
         font-weight: 600;
         margin-bottom: 2rem;
         text-align: center;
     }
     
-    /* 子标题样式 */
+    /* 子标题样式 - 稍浅蓝灰色 */
     .section-title {
-        color: #37474f;
+        color: #2C3E66;
         font-size: 1.2rem;
         font-weight: 500;
         margin: 1rem 0 0.5rem 0;
@@ -53,22 +53,23 @@ st.markdown("""
         margin-bottom: 1.5rem;
     }
     
-    /* 结果卡片样式 */
+    /* 结果卡片样式 - 浅灰背景加 BJA 蓝边框 */
     .result-container {
-        background: #f5f7fa;
+        background: #f8f9fc;
         padding: 1.5rem;
         border-radius: 10px;
-        border: 1px solid #e0e0e0;
+        border: 1px solid #d0d7de;
+        border-top: 3px solid #003366;
         margin: 1.5rem 0;
     }
     
-    /* 预测按钮样式 */
+    /* 预测按钮样式 - BJA 蓝 */
     .predict-button {
         width: 100%;
         padding: 0.75rem;
         border: none;
         border-radius: 8px;
-        background: #1a237e;
+        background: #003366;
         color: white;
         font-weight: 500;
         font-size: 1rem;
@@ -77,7 +78,7 @@ st.markdown("""
     }
     
     .predict-button:hover {
-        background: #283593;
+        background: #002244;
     }
     
     /* 输入框统一样式 */
@@ -85,12 +86,22 @@ st.markdown("""
         margin-bottom: 1rem;
     }
     
-    /* 特征标签 */
+    /* 特征标签 - BJA 深灰蓝 */
     .feature-label {
         font-weight: 500;
-        color: #455a64;
+        color: #1f3a5f;
         margin-bottom: 0.25rem;
         font-size: 0.9rem;
+    }
+    
+    /* 覆盖 Streamlit 默认按钮 primary 颜色 */
+    .stButton button {
+        background-color: #003366;
+        color: white;
+    }
+    .stButton button:hover {
+        background-color: #002244;
+        color: white;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -184,7 +195,6 @@ with col1:
                         label_visibility="collapsed"
                     )
                 else:
-                    # 使用 slider 提升体验（毕业论文风格）
                     inputs[feature] = st.slider(
                         label="",
                         min_value=min_val,
@@ -292,6 +302,5 @@ with col_btn2:
 # 页脚
 st.markdown("---")
 st.caption("Chronic Post-Surgical Pain (CPSP) Prediction Model")
-
 
 
