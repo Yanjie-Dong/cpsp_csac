@@ -1,188 +1,152 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# working environment
+# In[1]:
+
+
+# 工作环境
 import os
 import warnings
-import joblib
+current_directory = os.getcwd()
+warnings.filterwarnings('ignore')
+print("当前工作目录:", current_directory)
+
+
+# In[2]:
+
+
 import streamlit as st
+import joblib
 import numpy as np
 import shap
 import pandas as pd
 import matplotlib.pyplot as plt
 
-current_directory = os.getcwd()
-warnings.filterwarnings('ignore')
-print("curretn_directory:", current_directory)
 
-# load model and data
+# In[3]:
+
+
+# 设置 Matplotlib 的全局字体为 Arial
+plt.rcParams['font.family'] = 'Arial'
+
+
+# In[4]:
+
+
+# 
 model = joblib.load("simple_model.pkl")
 min_max_params = joblib.load("min_max_params_app.pkl")
 selected_features = joblib.load("selected_features_app.pkl")  # 25
 
+
+# In[5]:
+
+
 feature_names = min_max_params["feature_names"]
 selected_indices = [feature_names.index(f) for f in selected_features]
 
-# Define input ranges for each feature
+
+# In[ ]:
+
+
+selected_features = ['Subacute pain NRS score on postoperative day thirty', 'Drainage tube placement', 'Acute pain NRS score on postoperative day three', 'Gender', 'Rehabilitation NRS score on postoperative day thirty', 'Open surgery', 'Abdominal surgery', 'Treponema pallidum antibody', 'Consumption of intraoperative opioid', 'Operation grading IV', 'Preoperative pain NRS score', 'Consumption of intraoperative propofol', 'Summer season', 'Preoperative PSQI score', 'Surface or limb surgery']
+
+
+# In[6]:
+
+
+# 定义每个特征的输入范围
 feature_ranges = {
-    "Subacute pain NRS score at POD30": {"min": 0, "max": 10, "step": 1},
-    "The 10th percentile of postoperative NRS score": {"min": 0, "max": 10, "step": 1},
-    "Postoperative NRS CWT (coeff=2, width=2, scales=(2/5/10/20))": {"min": 0.0, "max": 1.0, "step": 0.1},
-    "Rehabilitation feeling at POD30": {"min": 0, "max": 10, "step": 1},
-    "Surgical month": {"min": 1, "max": 12, "step": 1},
-    "Consumption of intraoperative opioid": {"min": 0.0, "max": None, "step": 0.1},
-    "Intraoperative crystalloid": {"min": 0, "max": None, "step": 1},
-    "Treponema pallidum antibody": {"min": 0.0, "max": None, "step": 0.1},
-    "Preoperative pain NRS score": {"min": 0, "max": 10, "step": 1},
-    "Hospitalizing expenses": {"min": 0, "max": None, "step": 1},
-    "Preoperative serummagnesium": {"min": 0.0, "max": None, "step": 0.1},
-    "Consumption of intraoperative sevoflurane": {"min": 0.0, "max": None, "step": 0.1},
-    "Consumption of intraoperative propofol": {"min": 0.0, "max": None, "step": 0.1},
-    "Preoperative fibrinogen": {"min": 0.0, "max": None, "step": 0.1}
+    "Subacute pain NRS score on postoperative day thirty": {"min": 0.0, "max": 10.0,"step": 1.0},
+    "Acute pain NRS score on postoperative day three": {"min": 0.0, "max": 10.0,"step": 1.0},
+    "Rehabilitation NRS score on postoperative day thirty": {"min": 0.0, "max": 10.0,"step": 1.0},
+    "Consumption of intraoperative opioid": {"min": 0.0, "max": None,"step": 0.1},
+    "Treponema pallidum antibody": {"min": 0.0, "max": 1.0,"step": 0.1},
+    "Acute pain NRS score on postoperative day one": {"min": 0.0, "max": 10.0,"step": 1.0},
+    "Preoperative pain NRS score": {"min": 0.0, "max": 10.0,"step": 1.0},
+    "Hospitalizing expenses": {"min": 0.0, "max": None,"step":0.1},
+    "Consumption of intraoperative propofol": {"min": 0.0, "max": None,"step": 0.1},
+    "Preoperative PSQI score": {"min": 0.0, "max": 20.0,"step": 1.0}
+    #连续特征的范围
 }
 
-# Define binary features (yes/no)
-binary_features = ["Drainage tube placement", "Open surgery", "Male gender",
-                  "Abdominal surgery", 'Operation grading IV',
-                  'PHQ9-Trouble in sleep', 'Junior school and below',
-                  'PSQI-Feel too hot when sleep',
-                  'Middle thrombus risk',
-                  'Surface or limb surgery',
-                  'No thrombus risk']
 
-# Configure page layout to use full width
-st.set_page_config(layout="wide")
+# In[7]:
 
-# 
-st.markdown("""
-<style>
-    /* Full-width main container */
-    .main .block-container {
-        max-width: 100%;
-        padding: 2rem 4rem;
-    }
-    
-    /* Input control styling */
-    div.stNumberInput, div.stSelectbox {
-        width: 100% !important;
-    }
-    
-    /* Fix for selectbox display */
-    div[data-baseweb="select"]>div {
-        height: auto !important;
-        min-height: 38px !important;
-    }
-    
-    div[role="listbox"] div {
-        padding: 8px 12px !important;
-    }
-    
-    div[data-baseweb="input"]>div,
-    div[data-baseweb="select"]>div {
-        min-height: 38px;
-        display: flex;
-        align-items: center;
-    }
-    
-    /* Three column layout optimization */
-    div[data-testid="column"] {
-        padding: 0rem 1rem;
-        min-width: 30%;
-    }
-    
-    /* Label styling */
-    label[data-testid="stWidgetLabel"] p {
-        font-size: 14px;
-        line-height: 1.4;
-        margin-bottom: 0.5rem;
-        word-break: break-word;
-    }
-    
-    /* Input field styling */
-    div[data-baseweb="input"]>div, 
-    div[data-baseweb="select"]>div {
-        border-radius: 4px;
-        padding: 0.25rem 0.75rem;
-    }
-    
-    /* Button styling */
-    div.stButton>button {
-        width: 100%;
-        margin-top: 2rem;
-        padding: 0.5rem;
-    }
-    
-    /* Responsive adjustments */
-    @media screen and (max-width: 1200px) {
-        div[data-testid="column"] {
-            min-width: 45%;
-        }
-    }
-</style>
-""", unsafe_allow_html=True)
 
 st.title("CPSP Prediction")
-
-# Create three columns for input layout
-col1, col2, col3 = st.columns(3)
-
 inputs = {}
-for i, feature in enumerate(selected_features):
-    current_col = i % 3  
-    with [col1, col2, col3][current_col]:  
-        # Display original feature name
-        display_name = feature
+# 定义哪些特征是二元的
+binary_features = ["Drainage tube placement", "Open surgery", "Gender",
+                  "Abdominal surgery", 'Operation grading IV',
+                  'PHQ9-Trouble in sleep','Summer season',
+                  
+                  'Surface or limb surgery']  # 示例：这些特征只能取0或1
+
+for feature in selected_features:
+    if feature in binary_features:
+        # 二元特征，只能取0或1
+        inputs[feature] = st.selectbox(
+            f"{feature}",
+            options=[0, 1],
+            format_func=lambda x: 'No (0)' if x == 0 else 'Yes (1)'
+        )
+    else:
+        # 连续特征，使用手动定义的范围和步长
+        min_val = feature_ranges[feature]["min"]
+        max_val = feature_ranges[feature]["max"]
+        step = feature_ranges[feature]["step"]
         
-        if feature in binary_features:
-            inputs[feature] = st.selectbox(
-                display_name,
-                options=[0, 1],
-                format_func=lambda x: 'No (0)' if x == 0 else 'Yes (1)',
-                key=f"binary_{feature}"
+        if max_val is None:
+            # 如果没有设置最大值，允许用户输入任意大的值
+            inputs[feature] = st.number_input(
+                f"{feature}",
+                min_value=min_val,
+                step=step,
+                value=min_val  # 默认值设置为最小值
             )
         else:
-            min_val = feature_ranges[feature]["min"]
-            max_val = feature_ranges[feature]["max"]
-            step = feature_ranges[feature]["step"]
-            
-            if max_val is None:
-                inputs[feature] = st.number_input(
-                    display_name,
-                    min_value=min_val,
-                    step=step,
-                    value=min_val,
-                    key=f"num_{feature}"
-                )
-            else:
-                inputs[feature] = st.number_input(
-                    display_name,
-                    min_value=min_val,
-                    max_value=max_val,
-                    step=step,
-                    value=min_val,
-                    key=f"num_{feature}"
-                )
+            # 如果设置了最大值，使用范围限制
+            inputs[feature] = st.number_input(
+                f"{feature}",
+                min_value=min_val,
+                max_value=max_val,
+                step=step,
+                value=min_val  # 默认值设置为最小值
+            )
 
-# Prediction button
-if st.button("Predict", key="predict_button"):
+
+# In[8]:
+
+
+if st.button("Predict"):
+    # (1)
     user_input = np.array([inputs[f] for f in selected_features])
-    min_vals = min_max_params["min"][selected_indices]
-    max_vals = min_max_params["max"][selected_indices]
+    min_vals = min_max_params["min"][selected_indices]  # 25min
+    max_vals = min_max_params["max"][selected_indices]  # 25max
     normalized_input = (user_input - min_vals) / (max_vals - min_vals)
                             
+     # (2) 预测（注意输入是2D数组）
     prediction = model.predict([normalized_input])
     predicted_proba = model.predict_proba([normalized_input])[0]
 
-    risk_probability = predicted_proba[1]
-    st.success(f"Based on this model, the output probability of CPSP risk is {risk_probability * 100:.2f}%. A predicted probability ≥12.40% (the optimal threshold determined by Youden's index) is classified as high risk for CPSP.")
+    # 显示预测结果
+    risk_probability = predicted_proba[1]  # 正类的概率
+    st.success(f"Based on this model, the CPSP risk of this patient is {risk_probability * 100:.2f}%")
 
-    # SHAP
+    # 计算SHAP值并显示力图
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(pd.DataFrame([normalized_input], columns=selected_features))
 
-    # Display SHAP force plot
-    st.subheader("Feature Impact Analysis")
-    plt.figure(figsize=(20, 6))
+    # 显示SHAP力图
+    plt.figure(figsize=(20, 12))  # 调整图像大小
     shap.force_plot(explainer.expected_value, shap_values[0], pd.DataFrame([normalized_input], columns=selected_features), matplotlib=True)
-    plt.tight_layout()
-    st.pyplot(plt)
+    plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=300)
+    st.image("shap_force_plot.png")
+
+
+# In[ ]:
+
+
+
+
